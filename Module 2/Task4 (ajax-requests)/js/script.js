@@ -124,23 +124,39 @@ window.addEventListener('DOMContentLoaded', function() {
     };
 
     let form = document.querySelector('.main-form');
-    let inputs = form.querySelectorAll('#input');
+    let inputs = form.querySelectorAll('input');
     let statusMessage = document.createElement('div');
 
     statusMessage.classList.add('status');
 
+
+    // configure requests from modal window
     form.addEventListener('submit', function(event) {
         event.preventDefault();
         form.appendChild(statusMessage);
 
         let request = new XMLHttpRequest();
         request.open('POST', 'server.php');
-        request.setRequestHeader('Content-Type',
-            'application/x-www-form-urlencoder');
+        
+        // *********** request-form ***********
+        // request.setRequestHeader('Content-Type','application/x-www-form-urlencoder');
+        // // getting data from form
+        // let formData = new FormData(form);
+        // request.send(formData);
+        
+
+        // *********** request-JSON ***********
+        request.setRequestHeader('Content-type', 'application/json; charset=utf8');
+        // converting data from form into JSON via temp object
 
         // getting data from form
         let formData = new FormData(form);
-        request.send(formData);
+        let temp = {};
+        formData.forEach(function(value, key) {
+            temp[key] = value;
+        });
+        let json = JSON.stringify(temp);
+        request.send(json);
 
         request.addEventListener('readystatechange', function() {
             if (request.readyState < 4) {
@@ -152,5 +168,57 @@ window.addEventListener('DOMContentLoaded', function() {
                 statusMessage.textContent = message.failure;
             }
         });
+
+        for (let i = 0; i < inputs.length; i++) {
+            inputs[i].value = '';
+        }
     });
+
+
+    console.log("HERE");
+    // configure requests from contacts window
+    //let contactsCont = document.querySelector('.contact-form');
+    //let contactsForm = contactsCont.querySelector('form');
+    let contactsForm = document.querySelector('form');
+    let contactsInputs = contactsForm.querySelectorAll('input');
+    let contactStatusMessage = document.createElement('div');
+
+    contactStatusMessage.classList.add('status');
+
+    console.log(contactsForm);
+
+    contactsForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        contactsForm.appendChild(contactStatusMessage);
+
+        let request = new XMLHttpRequest();
+        request.open('POST', 'server.php');
+
+        request.setRequestHeader('Content-type', 'application/json; charset=utf8');
+        
+        // getting data from form
+        let formData = new FormData(contactsForm);
+        let temp = {};
+        formData.forEach(function(value, key) {
+            temp[key] = value;
+        });
+        console.log(temp);
+        let json = JSON.stringify(temp);
+        request.send(json);
+
+        request.addEventListener('readystatechange', function() {
+            if (request.readyState < 4) {
+                contactStatusMessage.textContent = message.loading;
+            } else if (request.readyState === 4 && request.status == 200) {
+                    contactStatusMessage.textContent = message.success;
+            } else {
+                contactStatusMessage.textContent = message.failure;
+            }
+        });
+
+        for (let i = 0; i < contactsInputs.length; i++) {
+            contactsInputs[i].value = '';
+        }
+    });
+
 });
